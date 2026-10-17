@@ -7,7 +7,7 @@ const root=path.dirname(fileURLToPath(import.meta.url));
 app.use(express.json());
 app.use(express.static(path.join(root,'public')));
 const port=process.env.PORT||3000;
-const YT_KEY=process.env.YOUTUBE_API_KEY;
+const YT_KEY=process.env.YOUTUBE_APIKEY;
 const RAPID_KEY=process.env.RAPIDAPI_KEY;
 const RAPID_HOST=process.env.RAPIDAPI_HOST||'youtube-to-mp315.p.rapidapi.com';
 
