@@ -32,11 +32,16 @@ app.get('/api/download',async(req,res)=>{
     const u=new URL(`https://${RAPID_HOST}/mp3`);
     u.searchParams.set('url',`https://www.youtube.com/watch?v=${videoId}`);
     const r=await fetch(u,{headers:{accept:'*/*','x-rapidapi-host':RAPID_HOST,'x-rapidapi-key':RAPID_KEY}});
-    if(!r.ok){const text=await r.text();throw new Error(text.slice(0,300)||`RapidAPI membalas HTTP ${r.status}`)}
-    res.setHeader('content-type',r.headers.get('content-type')||'audio/mpeg');
+    const data=await r.json().catch(()=>null);
+    if(!r.ok)throw new Error(data?.message||data?.error||`RapidAPI membalas HTTP ${r.status}`);
+    if(!data?.success||typeof data.download!=='string')throw new Error(data?.message||data?.error||'Respons RapidAPI tidak berisi link download.');
+    const fileUrl=new URL(data.download);
+    if(fileUrl.protocol!=='https:'||fileUrl.hostname!=='lib.jaiza.fun')throw new Error('Host link audio dari API tidak valid.');
+    const audio=await fetch(fileUrl);
+    if(!audio.ok||!audio.body)throw new Error(`Server file audio membalas HTTP ${audio.status}`);
+    res.setHeader('content-type',audio.headers.get('content-type')||'audio/mpeg');
     res.setHeader('content-disposition',`attachment; filename="gudang-lagu-${videoId}.mp3"`);
-    if(!r.body)return res.status(502).json({error:'RapidAPI tidak mengirim file audio.'});
-    const {Readable}=await import('node:stream');Readable.fromWeb(r.body).pipe(res);
+    const {Readable}=await import('node:stream');Readable.fromWeb(audio.body).pipe(res);
   }catch(e){res.status(502).json({error:e.message})}
 });
 
