@@ -25,7 +25,7 @@ app.get('/api/search',async(req,res)=>{
 });
 app.get('/api/download',async(req,res)=>{
   const videoId=String(req.query.videoId||'');
-  if(!/^[\\w-]{11}$/.test(videoId))return res.status(400).json({error:'ID video tidak valid.'});
+  if(!/^[A-Za-z0-9_-]{11}$/.test(videoId))return res.status(400).json({error:'ID video tidak valid.',received:videoId});
   if(!RAPID_KEY)return res.status(503).json({error:'RapidAPI belum dikonfigurasi. Tambahkan RAPIDAPI_KEY di Railway Variables.'});
   try{
     const params=new URLSearchParams({url:`https://www.youtube.com/watch?v=${videoId}`,endTime:'0',format:'mp3'});
